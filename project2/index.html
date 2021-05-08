@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="Hannah Palacios" />
     
-    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="../img/favicon.ico">
     <title>Project 2: Modeling, Testing, and Predicting</title>
     <meta name="generator" content="Hugo 0.83.1" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="../css/main.css" />
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
     
@@ -28,7 +28,7 @@
       <nav class="navbar navbar-default">
   <div class="container">
     <div class="navbar-header">
-      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <a class="navbar-brand" href="../"><i class="fa fa-home"></i></a>
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -39,11 +39,11 @@
       <ul class="nav navbar-nav navbar-right">
       
         
-        <li><a href="../../post/">BLOG</a></li>
+        <li><a href="../post/">BLOG</a></li>
         
-        <li><a href="../../projects/">PROJECTS</a></li>
+        <li><a href="../projects/">PROJECTS</a></li>
         
-        <li><a href="../../resume/">RESUME</a></li>
+        <li><a href="../resume/">RESUME</a></li>
         
       
       </ul>
@@ -54,7 +54,7 @@
       <div class="container">
         <div class="blog-post">
           <h3>
-            <strong><a href="../../project/project2/">Project 2: Modeling, Testing, and Predicting</a></strong>
+            <strong><a href="../project2/">Project 2: Modeling, Testing, and Predicting</a></strong>
           </h3>
         </div>
  
@@ -209,11 +209,11 @@ mean(diffs1 &gt; 5.095011 | diffs1 &lt; -5.095011) # two-tailed p value </code><
 <pre><code>## [1] 0</code></pre>
 <pre class="r"><code># plot visualizing the null distribution 
 hist(diffs1, main=&quot;Null distribution&quot;, xlab = &quot;Mean difference in math scores for males and females&quot;)</code></pre>
-<p><img src="../../project/project2_files/figure-html/unnamed-chunk-3-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p><img src="../Project2_files/figure-html/unnamed-chunk-3-1.png" width="768" style="display: block; margin: auto;" /></p>
 <pre class="r"><code># plot visualizing the mean difference
 ggplot(dataset1, aes(math_score, fill = gender)) + geom_histogram(bins=6.5) +
 facet_wrap(~gender, ncol=2) + theme(legend.position=&quot;none&quot;)</code></pre>
-<p><img src="../../project/project2_files/figure-html/unnamed-chunk-3-2.png" width="768" style="display: block; margin: auto;" />
+<p><img src="../Project2_files/figure-html/unnamed-chunk-3-2.png" width="768" style="display: block; margin: auto;" />
 <em>A randomization test was performed to test the null hypothesis that mean math scores are the same for males and females. The alternative hypothesis is that mean math scores are significantly different for male vs. female students. The actual mean difference between male and female scores is 5.095 (with males having higher scores than females). The p-value for the randomization test came out to be 0 which is the probability of getting a mean difference this big under our sampling distribution. Since it is less than 0.05 the null hypothesis can be rejected and we can say that mean math scores are significantly different for male and female students.</em></p>
 </div>
 <div id="linear-regression" class="section level2">
@@ -249,15 +249,15 @@ dataset1)
 ## F-statistic: 680.8 on 3 and 996 DF, p-value: &lt; 2.2e-16</code></pre>
 <pre class="r"><code># plot the regression
 ggplot(dataset1, aes(y=reading_score, x=mathscore_c, color=lunch)) + geom_point() + geom_smooth(method=&quot;lm&quot;)</code></pre>
-<p><img src="../../project/project2_files/figure-html/unnamed-chunk-4-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p><img src="../Project2_files/figure-html/unnamed-chunk-4-1.png" width="768" style="display: block; margin: auto;" /></p>
 <pre class="r"><code># check for linearity
 residuals1 &lt;- regress1$residuals
 fittedvals1 &lt;- regress1$fitted.values
 plot(fittedvals1, residuals1); abline(h=0, col=&#39;red&#39;)</code></pre>
-<p><img src="../../project/project2_files/figure-html/unnamed-chunk-4-2.png" width="768" style="display: block; margin: auto;" /></p>
+<p><img src="../Project2_files/figure-html/unnamed-chunk-4-2.png" width="768" style="display: block; margin: auto;" /></p>
 <pre class="r"><code># check for normality
 par(mfrow=c(1,2)); hist(residuals1); qqnorm(residuals1); qqline(residuals1, col=&#39;red&#39;)</code></pre>
-<p><img src="../../project/project2_files/figure-html/unnamed-chunk-4-3.png" width="768" style="display: block; margin: auto;" /></p>
+<p><img src="../Project2_files/figure-html/unnamed-chunk-4-3.png" width="768" style="display: block; margin: auto;" /></p>
 <pre class="r"><code># check for homoskedasticity
 library(sandwich)
 library(lmtest)
@@ -302,26 +302,26 @@ bootstrap_data)
 ##
 ## Residuals:
 ## Min 1Q Median 3Q Max
-## -25.2720 -5.8552 0.2921 6.6444 22.1639
+## -25.3491 -6.0385 0.0769 6.1962 21.4690
 ##
 ## Coefficients:
 ## Estimate Std. Error t value Pr(&gt;|t|)
-## (Intercept) 70.09706 0.50849 137.852 &lt;2e-16 ***
-## lunchstandard -1.44434 0.62313 -2.318 0.0207 *
-## mathscore_c 0.83338 0.02849 29.256 &lt;2e-16 ***
-## lunchstandard:mathscore_c -0.01287 0.03837 -0.335 0.7374
+## (Intercept) 69.45568 0.48865 142.139 &lt;2e-16 ***
+## lunchstandard -0.76088 0.60317 -1.261 0.207
+## mathscore_c 0.78260 0.02801 27.938 &lt;2e-16 ***
+## lunchstandard:mathscore_c 0.03559 0.03799 0.937 0.349
 ## ---
 ## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
 &#39; &#39; 1
 ##
-## Residual standard error: 8.632 on 996 degrees of freedom
-## Multiple R-squared: 0.6797, Adjusted R-squared: 0.6787
-## F-statistic: 704.4 on 3 and 996 DF, p-value: &lt; 2.2e-16</code></pre>
+## Residual standard error: 8.495 on 996 degrees of freedom
+## Multiple R-squared: 0.6692, Adjusted R-squared: 0.6682
+## F-statistic: 671.5 on 3 and 996 DF, p-value: &lt; 2.2e-16</code></pre>
 <pre class="r"><code># bootstrapped SE&#39;s - resampling rows
 sample_distribution %&gt;% t %&gt;% as.data.frame %&gt;% summarize_all(sd)</code></pre>
 <pre><code>## (Intercept) lunchstandard mathscore_c
 lunchstandard:mathscore_c
-## 1 0.4918946 0.6119636 0.02843844 0.03687799</code></pre>
+## 1 0.4853352 0.6023475 0.02827592 0.0365841</code></pre>
 <p><em>The p-values are all now slightly lower than they were before bootstrapping. After bootstrapping, the estimated standard error for the intercept is 0.491 which is slightly smaller than the robust standard error and almost the same as the original standard error. The bootstrapped standard lunch SE was 0.613 which is slightly larger than the robust SE and the original SE. The bootstrapped math score SE was 0.028 which is about the same as robust SE and slightly smaller than the original. The bootstrapped interaction SE was slightly smaller than the original. None of the coefficients showed a change in significance with the bootstrapped standard errors.</em></p>
 </div>
 <div id="logistic-regression" class="section level2">
@@ -408,7 +408,7 @@ math_score reading_score writing_score
 library(plotROC)
 ROCplot &lt;- ggplot(dataset1) + geom_roc(aes(d = y, m = z+writing_score), n.cuts=0) 
 ROCplot</code></pre>
-<p><img src="../../project/project2_files/figure-html/unnamed-chunk-6-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p><img src="../Project2_files/figure-html/unnamed-chunk-6-1.png" width="768" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>calc_auc(ROCplot) # auc</code></pre>
 <pre><code>##   PANEL group       AUC
 ## 1     1    -1 0.6786756</code></pre>
@@ -417,7 +417,7 @@ logit &lt;- predict(regress3, type=&quot;link&quot;)
 dataset1 %&gt;% ggplot() + geom_density(aes(logit, color=gender, fill=gender), alpha=.4)+
   theme(legend.position=c(.85,.85))+geom_vline(xintercept=0)+xlab(&quot;logit (log-odds)&quot;)+
   geom_rug(aes(logit,color=gender))</code></pre>
-<p><img src="../../project/project2_files/figure-html/unnamed-chunk-6-2.png" width="768" style="display: block; margin: auto;" />
+<p><img src="../Project2_files/figure-html/unnamed-chunk-6-2.png" width="768" style="display: block; margin: auto;" />
 <em>A logistic regression was performed that predicts gender from writing score and test prep. The odds of being female with no test prep are 1.681 times that of the odds of yes test prep. Controlling for test prep, for every 1 point increase in writing score, the odds of being female change by 1.05, i.e. they increase by 5%. The accuracy is 0.637 which is not great, as this is the proportion of correctly classified cases. The sensitivity (TPR) is 0.693 which is the proportion of females correctly classified. The specificity (TNR) is 0.57 which is the proportion of males correctly classified. The precision is 0.638 which is the proportion classified female who actually are female. The ROC plot does not look great as it is not even close to making a right angle. The AUC was 0.679 which is considered poor and can be interpreted as the probability that a randomly selected person that is female has a higher predicted probability than a randomly selected person that’s male. </em></p>
 </div>
 <div id="logistic-regression-pt.-2" class="section level2">
@@ -614,10 +614,10 @@ summarize_all(diags,mean)</code></pre>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-<script src="../../js/docs.min.js"></script>
-<script src="../../js/main.js"></script>
+<script src="../js/docs.min.js"></script>
+<script src="../js/main.js"></script>
 
-<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+<script src="../js/ie10-viewport-bug-workaround.js"></script>
 
 
     
