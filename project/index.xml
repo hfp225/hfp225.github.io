@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Projects on Hannah Palacios</title>
+    <link>/project/</link>
+    <description>Recent content in Projects on Hannah Palacios</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language><atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Project 1: Exploratory Data Analysis</title>
+      <link>/project/project1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project1/</guid>
+      <description>Hannah Palacios, hfp225  Data Wrangling and Data Exploration library(tidyverse) library(ggplot2) library(cluster) data1 &amp;lt;- read_csv(&amp;quot;College.csv&amp;quot;) # https://www.kaggle.com/smithashivakumar/college data2 &amp;lt;- read_csv(&amp;quot;salary_potential.csv&amp;quot;) # https://www.kaggle.com/jessemostipak/college-tuition-diversity-and-pay?select=salary_potential.csv Introduction The datasets I chose are called “College” and “Salary Potential”, and they were both acquired through the “Kaggle” website. The College dataset comes from the book “An Introduction to Statistical Learning” by James et al. 2013. It contains 19 columns: X1 = school name, Private = yes if private and no if public, Apps = number of applications received, Accept = number of applicants accepted, Enroll = number of new students enrolled, Top10perc = number of new students from top 10% of high school, Top25perc = number of new students from top 25% high school, F.</description>
+    </item>
+    
+  </channel>
+</rss>

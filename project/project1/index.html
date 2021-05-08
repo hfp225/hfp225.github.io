@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Hannah Palacios" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 1: Exploratory Data Analysis</title>
+    <meta name="generator" content="Hugo 0.83.1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project1/">Project 1: Exploratory Data Analysis</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="hannah-palacios-hfp225" class="section level2">
+<h2>Hannah Palacios, hfp225</h2>
+</div>
+<div id="data-wrangling-and-data-exploration" class="section level2">
+<h2>Data Wrangling and Data Exploration</h2>
+<pre class="r"><code>library(tidyverse)
+library(ggplot2)
+library(cluster)
+
+data1 &lt;- read_csv(&quot;College.csv&quot;)
+# https://www.kaggle.com/smithashivakumar/college
+data2 &lt;- read_csv(&quot;salary_potential.csv&quot;)
+# https://www.kaggle.com/jessemostipak/college-tuition-diversity-and-pay?select=salary_potential.csv</code></pre>
+<div id="introduction" class="section level3">
+<h3>Introduction</h3>
+<p><em>The datasets I chose are called “College” and “Salary Potential”, and they were both acquired through the “Kaggle” website. The College dataset comes from the book “An Introduction to Statistical Learning” by James et al. 2013. It contains 19 columns: X1 = school name, Private = yes if private and no if public, Apps = number of applications received, Accept = number of applicants accepted, Enroll = number of new students enrolled, Top10perc = number of new students from top 10% of high school, Top25perc = number of new students from top 25% high school, F.Undergrad = number of full time undergraduates, P.Undergrad = number of part time undergraduates, Outstate = out of state tuition, Room.Board = costs of room and board, Books = estimated book costs, Personal = estimated personal spending, PhD = percent of faculty with PhD, Terminal = percent of faculty with terminal degree, S.F.Ration = student faculty ratio, perc. alumni = Percent of alumni who donate, Expend = instructional expenditure per student, Grad.rate = graduation rate.</em></p>
+<p><em>The Salary Potential dataset originally came from the US Department of Education, but more specifically from a site called payscale.com. It contains 7 columns: rank = potential salary rank within state, name = school name, state_name = state name, early_career_pay = estimated early career pay in USD, mid_career_pay = estimated mid career pay in USD, make_world_better_percent = percent of alumni that think they are making world better place, stem_percent = percent of student body in STEM. These datasets are interesting to me because they both have some variables that are not commonly known, for example I was interested by the percent of alumni who think they are making a difference in the world, and the estimated personal spending for different schools. I expect there to be an association between the Private/public status of a school and the early or mid career estimated pay. I am also curious if there will be an association between the student faculty ratio and the percent of alumni who think they are making the world a better place.</em></p>
+</div>
+<div id="merging" class="section level3">
+<h3>Merging</h3>
+<pre class="r"><code>merged_data &lt;- inner_join(data1, data2, by = c(X1 = &quot;name&quot;))
+merged_data2 &lt;- merged_data %&gt;% rename(College_name = X1)
+merged_data2 %&gt;% glimpse</code></pre>
+<pre><code>## Rows: 332
+## Columns: 25
+## $ College_name              &lt;chr&gt; &quot;Agnes Scott College&quot;, &quot;Alaska Pacific Univ…
+## $ Private                   &lt;chr&gt; &quot;Yes&quot;, &quot;Yes&quot;, &quot;Yes&quot;, &quot;Yes&quot;, &quot;Yes&quot;, &quot;Yes&quot;, &quot;…
+## $ Apps                      &lt;dbl&gt; 417, 193, 353, 1899, 1267, 4302, 1130, 7313…
+## $ Accept                    &lt;dbl&gt; 349, 146, 340, 1720, 1080, 992, 704, 4664, …
+## $ Enroll                    &lt;dbl&gt; 137, 55, 103, 489, 385, 418, 322, 1910, 951…
+## $ Top10perc                 &lt;dbl&gt; 60, 16, 17, 37, 44, 83, 14, 20, 12, 21, 53,…
+## $ Top25perc                 &lt;dbl&gt; 89, 44, 45, 68, 73, 96, 23, 63, 52, 47, 95,…
+## $ F.Undergrad               &lt;dbl&gt; 510, 249, 416, 1594, 1306, 1593, 1586, 9940…
+## $ P.Undergrad               &lt;dbl&gt; 63, 869, 230, 32, 28, 5, 326, 1035, 939, 46…
+## $ Outstate                  &lt;dbl&gt; 12960, 7560, 13290, 13868, 12572, 19760, 99…
+## $ Room.Board                &lt;dbl&gt; 5450, 4120, 5720, 4826, 4552, 5300, 3090, 2…
+## $ Books                     &lt;dbl&gt; 450, 800, 500, 450, 400, 660, 900, 96, 450,…
+## $ Personal                  &lt;dbl&gt; 875, 1500, 1500, 850, 400, 1598, 1320, 2000…
+## $ PhD                       &lt;dbl&gt; 92, 76, 90, 89, 79, 93, 62, 83, 57, 58, 83,…
+## $ Terminal                  &lt;dbl&gt; 97, 72, 93, 100, 87, 98, 66, 96, 60, 68, 93…
+## $ S.F.Ratio                 &lt;dbl&gt; 7.7, 11.9, 11.5, 13.7, 15.3, 8.4, 11.5, 18.…
+## $ perc.alumni               &lt;dbl&gt; 37, 2, 26, 37, 32, 63, 18, 14, 5, 21, 33, 1…
+## $ Expend                    &lt;dbl&gt; 19016, 10922, 8861, 11487, 9305, 21424, 109…
+## $ Grad.Rate                 &lt;dbl&gt; 59, 15, 63, 73, 68, 100, 46, 70, 48, 65, 91…
+## $ rank                      &lt;dbl&gt; 14, 3, 18, 7, 15, 10, 21, 15, 13, 10, 19, 2…
+## $ state_name                &lt;chr&gt; &quot;Georgia&quot;, &quot;Alaska&quot;, &quot;Connecticut&quot;, &quot;Michig…
+## $ early_career_pay          &lt;dbl&gt; 46000, 50300, 49700, 52100, 48400, 63800, 4…
+## $ mid_career_pay            &lt;dbl&gt; 83600, 90000, 85900, 99300, 89900, 116500, …
+## $ make_world_better_percent &lt;dbl&gt; 57, 67, 62, 44, 52, 45, 51, 47, 54, 55, 57,…
+## $ stem_percent              &lt;dbl&gt; 26, 6, 2, 23, 15, 32, 7, 9, 7, 2, 19, 12, 1…</code></pre>
+<p><em>I chose to do an inner join because I only wanted to keep schools that were found in both datasets, so the schools found in only 1 of the 2 datasets were dropped. This way, during wrangling there would not be rows with many NAs. Additionally, there were enough schools in common between the 2 datasets that keeping only the matching ones still left me with 332 observations which was plenty for my analysis. One potential problem with dropping the non-matches is that the joined dataset may not be fully representative of all the schools in each state.</em></p>
+</div>
+<div id="wrangling-and-tidying" class="section level3">
+<h3>Wrangling and tidying</h3>
+<pre class="r"><code># filter
+merged_data2 %&gt;% filter(Private == &quot;Yes&quot; &amp; mid_career_pay &gt;= 
+    1e+05) %&gt;% n_distinct(&quot;College_name&quot;)</code></pre>
+<pre><code>## [1] 100</code></pre>
+<pre class="r"><code>merged_data2 %&gt;% filter(Private == &quot;No&quot; &amp; mid_career_pay &gt;= 1e+05) %&gt;% 
+    n_distinct(&quot;College_name&quot;)</code></pre>
+<pre><code>## [1] 17</code></pre>
+<pre class="r"><code># arrange
+merged_data2 %&gt;% arrange(desc(Expend), desc(Grad.Rate)) %&gt;% glimpse</code></pre>
+<pre><code>## Rows: 332
+## Columns: 25
+## $ College_name              &lt;chr&gt; &quot;Johns Hopkins University&quot;, &quot;Wake Forest Un…
+## $ Private                   &lt;chr&gt; &quot;Yes&quot;, &quot;Yes&quot;, &quot;Yes&quot;, &quot;Yes&quot;, &quot;Yes&quot;, &quot;Yes&quot;, &quot;…
+## $ Apps                      &lt;dbl&gt; 8474, 5661, 10705, 13865, 6348, 6411, 8587,…
+## $ Accept                    &lt;dbl&gt; 3446, 2392, 2453, 2165, 2999, 2140, 2273, 4…
+## $ Enroll                    &lt;dbl&gt; 911, 903, 1317, 1606, 922, 1078, 1087, 1236…
+## $ Top10perc                 &lt;dbl&gt; 75, 75, 95, 90, 68, 96, 87, 76, 90, 90, 85,…
+## $ Top25perc                 &lt;dbl&gt; 94, 88, 99, 100, 94, 99, 99, 97, 98, 98, 98…
+## $ F.Undergrad               &lt;dbl&gt; 3566, 3499, 5217, 6862, 3340, 4481, 3918, 5…
+## $ P.Undergrad               &lt;dbl&gt; 1569, 172, 83, 320, 39, 28, 32, 192, 146, 5…
+## $ Outstate                  &lt;dbl&gt; 18800, 13850, 19840, 18485, 18930, 20100, 1…
+## $ Room.Board                &lt;dbl&gt; 6740, 4360, 6510, 6410, 6380, 5975, 6070, 6…
+## $ Books                     &lt;dbl&gt; 500, 500, 630, 500, 500, 725, 550, 600, 675…
+## $ Personal                  &lt;dbl&gt; 1040, 1250, 2115, 1920, 1254, 1600, 1100, 8…
+## $ PhD                       &lt;dbl&gt; 96, 95, 96, 97, 99, 99, 95, 97, 91, 95, 96,…
+## $ Terminal                  &lt;dbl&gt; 97, 97, 96, 97, 99, 99, 99, 98, 96, 96, 100…
+## $ S.F.Ratio                 &lt;dbl&gt; 3.3, 4.3, 5.8, 9.9, 5.3, 10.1, 4.7, 5.0, 8.…
+## $ perc.alumni               &lt;dbl&gt; 38, 37, 49, 52, 36, 35, 49, 28, 54, 44, 25,…
+## $ Expend                    &lt;dbl&gt; 56233, 41766, 40386, 37219, 36854, 33541, 2…
+## $ Grad.Rate                 &lt;dbl&gt; 90, 89, 99, 100, 90, 94, 98, 96, 99, 97, 92…
+## $ rank                      &lt;dbl&gt; 3, 2, 1, 2, 4, 1, 1, 2, 2, 1, 2, 16, 3, 1, …
+## $ state_name                &lt;chr&gt; &quot;Maryland&quot;, &quot;North-Carolina&quot;, &quot;Connecticut&quot;…
+## $ early_career_pay          &lt;dbl&gt; 67200, 60700, 70300, 74800, 64000, 86300, 7…
+## $ mid_career_pay            &lt;dbl&gt; 117100, 114800, 138300, 146800, 114200, 155…
+## $ make_world_better_percent &lt;dbl&gt; 57, 44, 53, 54, 41, 52, 44, 44, 48, 50, 46,…
+## $ stem_percent              &lt;dbl&gt; 31, 13, 22, 19, 22, 69, 35, 20, 48, 26, 20,…</code></pre>
+<pre class="r"><code># group_by
+merged_data2 %&gt;% group_by(state_name) %&gt;% summarize(mean(make_world_better_percent)) %&gt;% 
+    head(n = 10)</code></pre>
+<pre><code>## # A tibble: 10 x 2
+##    state_name  `mean(make_world_better_percent)`
+##    &lt;chr&gt;                                   &lt;dbl&gt;
+##  1 Alabama                                  61.4
+##  2 Alaska                                   67  
+##  3 Arizona                                  56  
+##  4 Arkansas                                 54  
+##  5 California                               46.9
+##  6 Colorado                                 50.8
+##  7 Connecticut                              48  
+##  8 Delaware                                 46.5
+##  9 Florida                                  51.7
+## 10 Georgia                                  51</code></pre>
+<pre class="r"><code># mutate
+merged_data2 &lt;- merged_data2 %&gt;% mutate(Accept_rate = (Accept/Apps) * 
+    100)
+
+merged_data2 &lt;- merged_data2 %&gt;% mutate(Total_cost = Room.Board + 
+    Books + Personal)
+
+merged_data2 &lt;- merged_data2 %&gt;% mutate(category_accept_rate = case_when(Accept_rate &gt;= 
+    0 &amp; Accept_rate &lt;= 25 ~ &quot;Quartile 1&quot;, Accept_rate &gt; 25 &amp; 
+    Accept_rate &lt;= 50 ~ &quot;Quartile 2&quot;, Accept_rate &gt; 50 &amp; Accept_rate &lt;= 
+    75 ~ &quot;Quartile 3&quot;, Accept_rate &gt; 75 &amp; Accept_rate &lt;= 100 ~ 
+    &quot;Quartile 4&quot;))
+
+# select
+merged_data2 %&gt;% dplyr::select(College_name, Accept_rate, Enroll) %&gt;% 
+    arrange(desc(Accept_rate)) %&gt;% head(n = 10)</code></pre>
+<pre><code>## # A tibble: 10 x 3
+##    College_name                  Accept_rate Enroll
+##    &lt;chr&gt;                               &lt;dbl&gt;  &lt;dbl&gt;
+##  1 Emporia State University            100      853
+##  2 Mayville State University           100      153
+##  3 Wayne State College                 100      724
+##  4 Arkansas Tech University             99.7    951
+##  5 Mount Marty College                  98.9    126
+##  6 Oklahoma Christian University        98.6    351
+##  7 Benedictine College                  98.1    222
+##  8 Delta State University               97.7    459
+##  9 Kansas Wesleyan University           97.6    148
+## 10 University of Dubuque                96.9    137</code></pre>
+<pre class="r"><code># summarize:
+merged_data2 %&gt;% summarise(mean(early_career_pay))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `mean(early_career_pay)`
+##                      &lt;dbl&gt;
+## 1                   52837.</code></pre>
+<pre class="r"><code>merged_data2 %&gt;% summarise(sd(Top10perc))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `sd(Top10perc)`
+##             &lt;dbl&gt;
+## 1            20.0</code></pre>
+<pre class="r"><code>merged_data2 %&gt;% summarise(median(P.Undergrad))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `median(P.Undergrad)`
+##                   &lt;dbl&gt;
+## 1                  328.</code></pre>
+<pre class="r"><code>merged_data2 %&gt;% summarise(IQR(Expend))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `IQR(Expend)`
+##           &lt;dbl&gt;
+## 1         5454.</code></pre>
+<pre class="r"><code>merged_data2 %&gt;% summarise(quantile(perc.alumni, 0.97))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `quantile(perc.alumni, 0.97)`
+##                           &lt;dbl&gt;
+## 1                            54</code></pre>
+<pre class="r"><code>merged_data2 %&gt;% summarise(var(Terminal))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `var(Terminal)`
+##             &lt;dbl&gt;
+## 1            162.</code></pre>
+<pre class="r"><code>merged_data2 %&gt;% summarise(max(stem_percent))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `max(stem_percent)`
+##                 &lt;dbl&gt;
+## 1                  86</code></pre>
+<pre class="r"><code>merged_data2 %&gt;% group_by(Private) %&gt;% summarise_all(n_distinct)</code></pre>
+<pre><code>## # A tibble: 2 x 28
+##   Private College_name  Apps Accept Enroll Top10perc Top25perc F.Undergrad
+##   &lt;chr&gt;          &lt;int&gt; &lt;int&gt;  &lt;int&gt;  &lt;int&gt;     &lt;int&gt;     &lt;int&gt;       &lt;int&gt;
+## 1 No                88    88     88     88        37        51          87
+## 2 Yes              244   235    237    219        68        73         236
+## # … with 20 more variables: P.Undergrad &lt;int&gt;, Outstate &lt;int&gt;,
+## #   Room.Board &lt;int&gt;, Books &lt;int&gt;, Personal &lt;int&gt;, PhD &lt;int&gt;, Terminal &lt;int&gt;,
+## #   S.F.Ratio &lt;int&gt;, perc.alumni &lt;int&gt;, Expend &lt;int&gt;, Grad.Rate &lt;int&gt;,
+## #   rank &lt;int&gt;, state_name &lt;int&gt;, early_career_pay &lt;int&gt;, mid_career_pay &lt;int&gt;,
+## #   make_world_better_percent &lt;int&gt;, stem_percent &lt;int&gt;, Accept_rate &lt;int&gt;,
+## #   Total_cost &lt;int&gt;, category_accept_rate &lt;int&gt;</code></pre>
+<pre class="r"><code># summarizing with group_by, and pivoting
+merged_data2 %&gt;% group_by(state_name) %&gt;% summarise(mean_roomboard = mean(Room.Board), 
+    mean_books = mean(Books), mean_personal = mean(Personal)) %&gt;% 
+    pivot_longer(c(mean_roomboard, mean_books, mean_personal), 
+        names_to = &quot;Type of expense&quot;, values_to = &quot;Cost&quot;) %&gt;% 
+    head(n = 10)</code></pre>
+<pre><code>## # A tibble: 10 x 3
+##    state_name `Type of expense`  Cost
+##    &lt;chr&gt;      &lt;chr&gt;             &lt;dbl&gt;
+##  1 Alabama    mean_roomboard    3922 
+##  2 Alabama    mean_books         538.
+##  3 Alabama    mean_personal     1411.
+##  4 Alaska     mean_roomboard    4120 
+##  5 Alaska     mean_books         800 
+##  6 Alaska     mean_personal     1500 
+##  7 Arizona    mean_roomboard    3728 
+##  8 Arizona    mean_books         620 
+##  9 Arizona    mean_personal     2342 
+## 10 Arkansas   mean_roomboard    3169</code></pre>
+<pre class="r"><code>merged_data2 %&gt;% group_by(state_name, Private) %&gt;% summarise(min_outstate_tuition = min(Outstate)) %&gt;% 
+    pivot_wider(names_from = &quot;Private&quot;, values_from = &quot;min_outstate_tuition&quot;) %&gt;% 
+    head(n = 10)</code></pre>
+<pre><code>## # A tibble: 10 x 3
+## # Groups:   state_name [10]
+##    state_name     No   Yes
+##    &lt;chr&gt;       &lt;dbl&gt; &lt;dbl&gt;
+##  1 Alabama      4440  6150
+##  2 Alaska         NA  7560
+##  3 Arizona      6746    NA
+##  4 Arkansas     3460  5504
+##  5 California     NA 13226
+##  6 Colorado     6198 15192
+##  7 Connecticut  5962 11070
+##  8 Delaware       NA  9890
+##  9 Florida      6597 11290
+## 10 Georgia      5697  7000</code></pre>
+<p><em>Filtering the data revealed that there were 100 private schools, yet only 17 public schools that had an estimated mid-career pay rate greater than $100,000. Although the data presents only an estimation of mid career pay and major/degree likely has a large effect on this mid-career pay, this result still surprised me. I was curious as to whether the school’s educational expenditure per-student would affect the graduation rate, so I arranged the data by descending expenditure and graduation rate. It does not seem that the highest educational expenditures lead to the highest graduation rates. I grouped the data by state and then summarized the mean percent of alumni who think they’re making the world a better place. For mutate, I created a column for acceptance rate by dividing number of students accepted by the number of applications, then multiplied by 100. I also created a column called Total_cost that shows the estimated student costs (aside from tuition) for books, personal expenses, and room/board by summing these columns together. I also created a columnn that categorizes acceptance rate into 4 different bins. I used select to show college names, their acceptance rates, and the number of students enrolled that year.</em></p>
+<p><em>For summary statistics, I found that the mean estimated early career pay for colleges in this dataset was $52,837. Having 54% of alumni who still donate would put a college in the 97th percentile for this category. I grouped the data by private/public status and found there were many more private schools in this dataset than public. The maximum percent of students in stem at from this dataset was 86%. I used pivot_longer with summarize to view the mean costs of room/board, books, and personal expenses grouped by each state. I used pivot_wider to view the minimum out-of-state tuition for private vs. public schools in each state. </em></p>
+</div>
+<div id="visualizing" class="section level3">
+<h3>Visualizing</h3>
+<div id="correlation-heatmap" class="section level5">
+<h5>Correlation heatmap</h5>
+<pre class="r"><code>cormat2 &lt;- merged_data2 %&gt;% select_if(is.numeric) %&gt;% cor(use = &quot;pair&quot;)
+
+tidycor2 &lt;- cormat2 %&gt;% as.data.frame %&gt;% rownames_to_column(&quot;Variable_1&quot;) %&gt;% 
+    pivot_longer(-1, names_to = &quot;Variable_2&quot;, values_to = &quot;Correlation&quot;)
+
+tidycor2 %&gt;% ggplot(aes(Variable_1, Variable_2, fill = Correlation)) + 
+    geom_tile() + scale_fill_gradient2(low = &quot;red&quot;, mid = &quot;white&quot;, 
+    high = &quot;blue&quot;) + geom_text(aes(label = round(Correlation, 
+    2)), color = &quot;black&quot;, size = 1) + coord_fixed() + theme(axis.text.x = element_text(angle = 90, 
+    hjust = 1))</code></pre>
+<p><img src="../../project/Project1_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" />
+<em>Early career pay rate is very positively correlated with mid career pay, as expected. Number of new students enrolled is very positively correlated with both acceptance rate and the number of full time undergraduates. Number of new students from the top 25% of class is very positively correlated with the number of new students from top 10%, but this was also expected. To mention some of the negative correlations, student/faculty ratio is negatively correlated with the school’s educational expenditure per student which makes sense. Out-of-state tuition was also negatively correlated with student/faculty ratio. There is no correlation between book costs and the percent of alumni who donate. There is also no correlation between the number of students from the top 10% of their HS class and the number of full time undergraduates.</em></p>
+</div>
+<div id="plot-1" class="section level5">
+<h5>Plot 1</h5>
+<pre class="r"><code>colors &lt;- c(No = &quot;darkgreen&quot;, Yes = &quot;turquoise&quot;)
+
+merged_data2 %&gt;% ggplot(aes(make_world_better_percent, mid_career_pay, 
+    color = Private)) + geom_point() + labs(title = &quot;Mid-career pay vs. % of alumni who think they&#39;re improving the world&quot;, 
+    x = &quot;% of alumni who think they&#39;re making world a better place&quot;, 
+    y = &quot;Estimated mid career pay ($)&quot;) + theme_minimal() + scale_color_manual(values = colors) + 
+    scale_y_continuous(breaks = seq(0, 160000, 10000)) + scale_x_continuous(breaks = seq(0, 
+    100, 10)) + theme(axis.line = element_line(color = &quot;black&quot;, 
+    size = 0.5)) + theme(axis.text = element_text(color = &quot;black&quot;))</code></pre>
+<p><img src="../../project/Project1_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><em>This plot illustrates that the highest estimated mid-career pay rates are mostly found from students at private universities. Private schools also had the highest percentages of alumni who think they’re making the world a better place. However, this could be simply because this dataset contains more private schools than public schools. There is not a super strong trend in this data, but interestingly, the schools with the highest percent of alumni who think they’re improving the world corresponded to the lower estimated mid career pay rates. But in general, as the percent of alumni who think they’re improving the world increases, the estimated mid career pay does not increase.</em></p>
+</div>
+<div id="plot-2" class="section level5">
+<h5>Plot 2</h5>
+<pre class="r"><code>merged_data2 %&gt;% ggplot(aes(x = category_accept_rate, y = Apps, 
+    fill = Private)) + geom_bar(stat = &quot;summary&quot;, position = &quot;dodge&quot;) + 
+    labs(title = &quot;Applications received vs. acceptance rate quartile for private/public schools&quot;, 
+        x = &quot;Acceptance rate quartile&quot;, y = &quot;Applications received&quot;) + 
+    theme_classic() + scale_fill_brewer(palette = &quot;Spectral&quot;) + 
+    theme(axis.text = element_text(color = &quot;black&quot;)) + theme(legend.background = element_rect(linetype = &quot;solid&quot;, 
+    color = &quot;black&quot;))</code></pre>
+<p><img src="../../project/Project1_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" />
+<em>There were no public schools in this dataset with acceptance rates lower than 25%. Also, this plot shows that the number of applicants decreased as the acceptance rate increased. So schools with more applicants were more selective and had lower acceptance rates, which makes sense because they cannot accept everyone even though many people want to attend these “top tier” schools. Similarly, schools with few applicants had high acceptance rates - either because the school needs students or because students do not want to attend a school that’s “easy” to get into. For example, private schools with very high acceptance rates had very few applicants. In quartiles 2,3, and 4 public schools had more applicants than private schools. </em></p>
+</div>
+</div>
+<div id="dimensionality-reduction" class="section level3">
+<h3>Dimensionality Reduction</h3>
+<pre class="r"><code>cluster_data &lt;- merged_data2 %&gt;% select(-College_name, -Private, 
+    -state_name, -category_accept_rate) %&gt;% scale()
+
+silhouette_width &lt;- vector()
+for (i in 2:10) {
+    pam_fit &lt;- pam(cluster_data, k = i)
+    silhouette_width[i] &lt;- pam_fit$silinfo$avg.width
+}
+ggplot() + geom_line(aes(x = 1:10, y = silhouette_width)) + scale_x_continuous(name = &quot;k&quot;, 
+    breaks = 1:10)</code></pre>
+<p><img src="../../project/Project1_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>dist_mat &lt;- merged_data2 %&gt;% select(-Private, -state_name, -category_accept_rate) %&gt;% 
+    mutate_if(is.numeric, scale) %&gt;% column_to_rownames(&quot;College_name&quot;) %&gt;% 
+    na.omit %&gt;% dist %&gt;% as.matrix
+
+pam_result &lt;- pam(dist_mat, k = 2, diss = T)
+dataset2 &lt;- cbind(cluster_data, cluster = pam_result$cluster) %&gt;% 
+    as.data.frame()
+
+dataset2 %&gt;% group_by(cluster) %&gt;% summarize_if(is.numeric, mean, 
+    na.rm = T)</code></pre>
+<pre><code>## # A tibble: 2 x 25
+##   cluster    Apps   Accept Enroll Top10perc Top25perc F.Undergrad P.Undergrad
+##     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
+## 1       1  0.106   0.00314 -0.122     0.490     0.504      -0.176      -0.238
+## 2       2 -0.0960 -0.00286  0.111    -0.445    -0.458       0.160       0.216
+## # … with 17 more variables: Outstate &lt;dbl&gt;, Room.Board &lt;dbl&gt;, Books &lt;dbl&gt;,
+## #   Personal &lt;dbl&gt;, PhD &lt;dbl&gt;, Terminal &lt;dbl&gt;, S.F.Ratio &lt;dbl&gt;,
+## #   perc.alumni &lt;dbl&gt;, Expend &lt;dbl&gt;, Grad.Rate &lt;dbl&gt;, rank &lt;dbl&gt;,
+## #   early_career_pay &lt;dbl&gt;, mid_career_pay &lt;dbl&gt;,
+## #   make_world_better_percent &lt;dbl&gt;, stem_percent &lt;dbl&gt;, Accept_rate &lt;dbl&gt;,
+## #   Total_cost &lt;dbl&gt;</code></pre>
+<pre class="r"><code>library(GGally)
+ggpairs(dataset2, columns = c(&quot;Top10perc&quot;, &quot;Outstate&quot;, &quot;Expend&quot;, 
+    &quot;make_world_better_percent&quot;, &quot;mid_career_pay&quot;), aes(color = as.factor(cluster)))</code></pre>
+<p><img src="../../project/Project1_files/figure-html/unnamed-chunk-7-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plot(pam_result, which = 2)</code></pre>
+<p><img src="../../project/Project1_files/figure-html/unnamed-chunk-7-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p><em>I first selected only the numeric columns from my dataset, scaled them, and named that data cluster_data. Then, I found out through the silhouette width that 2 clusters would be best for this data, as seen by the plot. I then made a distance matrix with the data, using Euclidean distances. PAM cluster analysis was then performed on the distance matrix and the cluster data was saved to the dataset, which I renamed as dataset2. I then found the cluster means to see which variables were important for differentiating the clusters. A GGally plot was then created using only 5 variables, because using 20+ variables would have been chaotic to visualize. As seen by the GGally plot, the data did not very cluster well. It seems that the Outstate variable separated the data the most. The average silhouette width was 0.19, meaning that no substantial structure was found. For some odd reason, the actual silhouette widths would not show up on the plot.</em></p>
+<p>…</p>
+</div>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>
