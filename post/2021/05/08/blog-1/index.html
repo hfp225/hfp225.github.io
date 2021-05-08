@@ -7,7 +7,7 @@
     <meta name="author" content="Hannah Palacios" />
     
     <link rel="shortcut icon" type="image/x-icon" href="../../../../../img/favicon.ico">
-    <title>Blog #1</title>
+    <title>Blog post 1 - Python</title>
     <meta name="generator" content="Hugo 0.83.1" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="../../../../../css/main.css" />
@@ -54,7 +54,7 @@
       <div class="container">
         <div class="blog-post">
           <h3>
-            <strong><a href="../../../../../post/2021/05/08/blog-1/">Blog #1</a></strong>
+            <strong><a href="../../../../../post/2021/05/08/blog-1/">Blog post 1 - Python</a></strong>
           </h3>
         </div>
  
@@ -72,7 +72,29 @@
               
 
 
-<p>“Hi, this is my blog post. gotta write more here tomorrow.”</p>
+<pre class="python"><code>hi =(&quot;Hello world, this is my first ever blog post.&quot;)</code></pre>
+<pre class="r"><code># use reticulate to show how R and python can work together:
+
+library(reticulate)
+
+dogs &lt;- &quot;I have a big dog named Murphy, here is a picture of her sitting in a funny position.&quot;</code></pre>
+<pre class="python"><code>print(hi, r.dogs)</code></pre>
+<pre><code>## Hello world, this is my first ever blog post. I have a big dog named Murphy, here is a picture of her sitting in a funny position.</code></pre>
+<p><img src="../../../../../post/2021-05-08-blog-1_files/21269D83-DA31-4DD7-BC62-A7126232EE15.jpeg" /></p>
+<pre class="python"><code># example of python code w/ output: practicing indexing lists
+
+animal_list = [&quot;whale&quot;, &quot;dolphin&quot;, &quot;shark&quot;, &quot;manta ray&quot;, &quot;squid&quot;, &quot;jellyfish&quot;]
+
+animal_list[0] # select first animal in list</code></pre>
+<pre><code>## &#39;whale&#39;</code></pre>
+<pre class="python"><code>animal_list[1] = &quot;bluefin tuna&quot; #replace the 2nd index w/ bluefin tuna
+print(animal_list)</code></pre>
+<pre><code>## [&#39;whale&#39;, &#39;bluefin tuna&#39;, &#39;shark&#39;, &#39;manta ray&#39;, &#39;squid&#39;, &#39;jellyfish&#39;]</code></pre>
+<pre class="python"><code>animal_list.append(&quot;sea otter&quot;) # add a 6th index to the list
+print(animal_list)</code></pre>
+<pre><code>## [&#39;whale&#39;, &#39;bluefin tuna&#39;, &#39;shark&#39;, &#39;manta ray&#39;, &#39;squid&#39;, &#39;jellyfish&#39;, &#39;sea otter&#39;]</code></pre>
+<pre class="python"><code>&quot;shark&quot; in animal_list</code></pre>
+<pre><code>## True</code></pre>
 
             
         <hr>         <div class="related-posts">

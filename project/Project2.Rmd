@@ -1,0 +1,271 @@
+---
+title: 'Project 2: Modeling, Testing, and Predicting'
+author: "SDS348"
+date: ''
+output:
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,fig.align="center",warning=FALSE,message=FALSE,fig.width=8, fig.height=5, linewidth=60)
+options(tibble.width = 100,width = 100)
+library(tidyverse)
+```
+
+## Find data
+
+```{R}
+dataset <- read_csv("StudentsPerformance.csv")
+# https://www.kaggle.com/spscientist/students-performance-in-exams
+
+library(tidyverse)
+library(dplyr)
+
+# change column names so they don't have spaces
+dataset1 <- dataset %>% rename(race_ethnicity = `race/ethnicity`, parental_ed = `parental level of education`, test_prep = `test preparation course`, math_score = `math score`, reading_score = `reading score`, writing_score = `writing score`)
+```
+
+## Introduction
+
+*This dataset is called Students Performance and was found on the Kaggle website. It describes test scores of high school students in the United States. There are 8 variables: 1) gender 2) race/ethnicity - 5 types but the actual races are not specified 3) level of parental education - ex: high school, some college 4) lunch - which says whether the student receives free/reduced lunch or regular lunch 5) test preparation - whether the student did a test prep course 6) math score 7) reading score and 8) writing score. There are 1,000 entries in this dataset.*
+
+## 1 - MANOVA
+
+```{R}
+manova1 <- manova(cbind(math_score, reading_score, writing_score)~parental_ed, data = dataset1)
+summary(manova1)
+
+summary.aov(manova1)
+
+pairwise.t.test(dataset1$math_score, dataset1$parental_ed, p.adj="none")
+pairwise.t.test(dataset1$reading_score, dataset1$parental_ed, p.adj="none")
+pairwise.t.test(dataset1$writing_score, dataset1$parental_ed, p.adj="none")
+
+# 1 MANOVA + 3 ANOVA's + 15 t-tests (3 test types x 5 parental ed levels) = 19 tests performed
+1 - (0.95^19) # probability of least 1 type-1 error
+0.05/19       # bonferroni correction
+
+# testing assumptions
+library(rstatix)
+group <- dataset1$parental_ed
+DVs <- dataset1 %>% select(math_score, reading_score, writing_score)
+sapply(split(DVs,group), mshapiro_test)
+box_m(DVs, group)
+```
+
+*First, a MANOVA was performed to see if any of the scores (math, reading, or writing) showed a mean difference across the levels of parental education. The p-value was significant, showing that for at least 1 type of test, at least 1 parental education level mean differs. Univariate ANOVAs were then performed to see which tests showed a mean difference - and this showed that math, reading, and writing showed different means for different parental education types. Post-hoc tests were then performed with pairwise comparisons. 19 tests were performed in total (1 MANOVA + 3 ANOVAs + 15 t-tests = 19). The probability I made at least 1 type-1 error is 0.6226 and after bonferroni correction the new p-value was 0.0026. After bonferroni correction for math scores, high school degrees were significantly different than associates, bachelors, masters, and some-college degrees. Some high-school was significantly different than bachelor's degree as well. The multivariate normality assumption  was met for all except 1 p-value as seen by the formal test. The homogeneity of covariance assumption was not met as seen by the Box M's test. The random samples and independent observations assumptions are expected to be met. *
+
+## 2 - Randomization test
+
+```{R}
+dataset1 %>% group_by(gender)%>%
+  summarize(means = mean(math_score)) %>% summarize(`mean_diff` = diff(means)) # actual mean diff = 5.095 = t stat
+
+diffs1 <- vector()
+for(i in 1:5000){
+data1 <- data.frame(math_score = sample(dataset1$math_score), gender = dataset1$gender)
+diffs1[i] <- mean(data1[data1$gender == "male",]$math_score) - mean(data1[data1$gender == "female",]$math_score)}
+
+mean(diffs1 > 5.095011 | diffs1 < -5.095011) # two-tailed p value 
+
+# plot visualizing the null distribution 
+hist(diffs1, main="Null distribution", xlab = "Mean difference in math scores for males and females")
+
+# plot visualizing the mean difference
+ggplot(dataset1, aes(math_score, fill = gender)) + geom_histogram(bins=6.5) +
+facet_wrap(~gender, ncol=2) + theme(legend.position="none")
+```
+*A randomization test was performed to test the null hypothesis that mean math scores are the same for males and females. The alternative hypothesis is that mean math scores are significantly different for male vs. female students. The actual mean difference between male and female scores is 5.095 (with males having higher scores than females). The p-value for the randomization test came out to be 0 which is the probability of getting a mean difference this big under our sampling distribution. Since it is less than 0.05 the null hypothesis can be rejected and we can say that mean math scores are significantly different for male and female students.*
+
+## 3 - Linear regression
+```{R}
+# mean-center the numeric predictor
+dataset1$mathscore_c <- dataset1$math_score - mean(dataset1$math_score)
+
+# linear regression
+regress1 <- lm(reading_score ~ lunch*mathscore_c, data = dataset1)
+summary(regress1)
+
+# plot the regression
+ggplot(dataset1, aes(y=reading_score, x=mathscore_c, color=lunch)) + geom_point() + geom_smooth(method="lm")
+  
+# check for linearity
+residuals1 <- regress1$residuals
+fittedvals1 <- regress1$fitted.values
+plot(fittedvals1, residuals1); abline(h=0, col='red')
+
+# check for normality
+par(mfrow=c(1,2)); hist(residuals1); qqnorm(residuals1); qqline(residuals1, col='red')
+
+# check for homoskedasticity
+library(sandwich)
+library(lmtest)
+bptest(regress1)
+
+# robust standard errors
+coeftest(regress1, vcov = vcovHC(regress1))
+
+```
+*A linear regression was performed to predict reading score from lunch type and math score. The intercept is 70.46 which means this is the predicted reading score for those with free/reduced lunch and average math scores. Those with standard lunch and average math scores have a predicted math score that is 1.99 times lower than those with reduced lunch and average math scores. For every 1 point increase in math score, the predicted reading score goes up by 0.81. The slope of math score on reading score for those with standard lunch is .0013 less than for those with free/reduced lunch. The proportion of variation in the outcome explained by this model is 0.6722. The linearity assumption is met because the red line is fairly horizontal at 0 and the residual plot shows no fitted pattern. The normality assumption is met because the points do fall along the red reference line in the QQ-plot. The Breuch-Pagan test showed that the homoskedasticity assumption was met since the p-value was > 0.05. There were no changes in significance after the robust standard errors, but the standard lunch p-value did get a bit larger.*
+
+## 4 - Bootstrapping
+
+```{R}
+bootstrap_data <- dataset1[sample(nrow(dataset1),replace=TRUE),]
+
+sample_distribution <- replicate(5000, {
+  bootstrap_data <- bootstrap_data <- dataset1[sample(nrow(dataset1), replace = TRUE),]
+  regress2 <- lm(reading_score ~ lunch * mathscore_c, data = bootstrap_data)
+  coef(regress2)
+})
+
+regress2 <- lm(reading_score ~ lunch * mathscore_c, data = bootstrap_data)
+summary(regress2)
+
+# bootstrapped SE's - resampling rows
+sample_distribution %>% t %>% as.data.frame %>% summarize_all(sd)
+```
+*The p-values are all now slightly lower than they were before bootstrapping. After bootstrapping, the estimated standard error for the intercept is 0.491 which is slightly smaller than the robust standard error and almost the same as the original standard error. The bootstrapped standard lunch SE was 0.613 which is slightly larger than the robust SE and the original SE. The bootstrapped math score SE was 0.028 which is about the same as robust SE and slightly smaller than the original. The bootstrapped interaction SE was slightly smaller than the original. None of the coefficients showed a change in significance with the bootstrapped standard errors.*
+
+## 5 - Logistic regression
+```{R}
+# add column 'y' for gender as 1s and 0s, 1 = female, 0 = male
+dataset1 <- dataset1 %>% mutate(y = ifelse(gender == "female", 1, 0))
+head(dataset1)
+
+# logistic regression
+regress3 <- glm(y ~ test_prep + writing_score, data = dataset1, family = "binomial")
+summary(regress3)
+exp(coef(regress3))
+
+# confusion matrix
+probs <- predict(regress3, type="response")
+table(predict = as.numeric(probs > .5), truth = dataset1$y) %>% addmargins
+
+# compute things
+(278+359)/1000 # accuracy
+359/518        # sensitivity
+278/482        # specificity  
+359/563        # precision
+
+# add column 'z' for test prep as 1s and 0s, 1 = completed test prep, 0 = no test prep
+dataset1 <- dataset1 %>% mutate(z = ifelse(test_prep == "completed", 1, 0))
+head(dataset1)
+
+# ROC curve
+library(plotROC)
+ROCplot <- ggplot(dataset1) + geom_roc(aes(d = y, m = z+writing_score), n.cuts=0) 
+ROCplot
+calc_auc(ROCplot) # auc
+
+# make density plot of log-odds colored by gender
+logit <- predict(regress3, type="link")
+dataset1 %>% ggplot() + geom_density(aes(logit, color=gender, fill=gender), alpha=.4)+
+  theme(legend.position=c(.85,.85))+geom_vline(xintercept=0)+xlab("logit (log-odds)")+
+  geom_rug(aes(logit,color=gender))
+```
+*A logistic regression was performed that predicts gender from writing score and test prep. The odds of being female with no test prep are 1.681 times that of the odds of yes test prep. Controlling for test prep, for every 1 point increase in writing score, the odds of being female change by 1.05, i.e. they increase by 5%. The accuracy is 0.637 which is not great, as this is the proportion of correctly classified cases. The sensitivity (TPR) is 0.693 which is the proportion of females correctly classified. The specificity (TNR) is 0.57 which is the proportion of males correctly classified. The precision is 0.638 which is the proportion classified female who actually are female. The ROC plot does not look great as it is not even close to making a right angle. The AUC was 0.679 which is considered poor and can be interpreted as the probability that a randomly selected person that is female has a higher predicted probability than a randomly selected person that's male. *
+
+## 6 - Logistic regression pt. 2
+```{R}
+class_diag <- function(probs,truth){
+  #CONFUSION MATRIX: CALCULATE ACCURACY, TPR, TNR, PPV
+  
+  if(is.character(truth)==TRUE) truth<-as.factor(truth)
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE) truth<-as.numeric(truth)-1
+  
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),factor(truth, levels=c(0,1)))
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  
+  #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup <-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR <-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  n <- length(TPR)
+  auc <- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,auc)
+}
+
+# made new dataset w/ only the variables I want - note that column 'y' and 'z' are gender and lunch as 1s and 0s
+dataset2 <- dataset1 %>% dplyr::select(-gender, -lunch, -mathscore_c)
+
+# logistic regression on this new dataset
+regress4 <- glm(y~., data = dataset2, family = "binomial")
+summary(regress4)
+probs2 <- predict(regress4, type="response")
+class_diag(probs2, dataset2$y)
+
+# 10 fold CV 
+set.seed(1234)
+k = 10
+data <- dataset2[sample(nrow(dataset2)),]
+folds <- cut(seq(1:nrow(dataset2)),breaks=k,labels=F)
+
+diags<-NULL
+for(i in 1:k){
+  train<-data[folds!=i,] 
+  test<-data[folds==i,]
+  truth <- test$y 
+  fit <- glm(y~., data = train, family = "binomial")
+  probs <- predict(fit, newdata = test, type="response")
+  diags <- rbind(diags, class_diag (probs,truth))
+}
+summarize_all(diags,mean)
+
+# LASSO
+library(glmnet)
+set.seed(1234)
+y <- as.matrix(dataset2$y) 
+x <- model.matrix(y~., data = dataset2)
+
+cv <- cv.glmnet(x, y, family = "binomial")
+lasso <- glmnet(x, y, family = "binomial", lambda = cv$lambda.1se)
+coef(lasso)
+
+# selecting only the LASSO variables
+lasso_data <- dataset2 %>% mutate(B = ifelse(race_ethnicity=="group B", 1, 0), D = ifelse(race_ethnicity=="group D", 1, 0), E = ifelse(race_ethnicity=="group E", 1, 0), bach_deg = ifelse(parental_ed=="bachelor's degree", 1, 0), hs = ifelse(parental_ed=="high school", 1, 0), masters = ifelse(parental_ed=="master's degree", 1, 0), some_coll = ifelse(parental_ed=="some college", 1, 0), some_hs = ifelse(parental_ed=="some high school", 1, 0)) %>% select(B, D, E, bach_deg:some_hs, math_score, writing_score, z,y)
+
+# 10-fold CV w/ only the LASSO variables
+set.seed(1234)
+k=10
+data <- lasso_data[sample(nrow(lasso_data)),]
+folds <- cut(seq(1:nrow(lasso_data)),breaks=k,labels=F)
+
+diags<-NULL
+for(i in 1:k){
+  train<-data[folds!=i,] 
+  test<-data[folds==i,]
+  truth<-test$y 
+  fit<-glm(y~., data=lasso_data, family="binomial")
+  probs<-predict(fit,newdata = test,type="response")
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+summarize_all(diags,mean)
+```
+*The in-sample classification diagnostics are as follows: AUC is 0.97 which is considered great, accuracy is 0.901, sensitivity is 0.909, specificity is 0.892, precision is 0.9. These values are all quite high, much higher than the previous logistic regression in question 5. The out-of sample AUC is 0.964 which is slightly lower than the in-sample, but still considered good. The AUC is interpreted as the probability that a randomly selected female has a higher predicted probability than a randomly selected male. The other out-of sample classification diagnostics are: accuracy = 0.895, sensitivity = 0.902, specificity = 0.887, and precision = 0.899. These are slightly lower than the in-sample diagnostics, as expected. After LASSO, almost all the coefficients are significant except for race/ethnicity group C and reading score. After re-running the 10 fold cross validation with only lasso variables, the AUC changed to 0.968 which is only slightly lower than the first logistic regression and still considered great. The reason it didn't change much might be because only several of the coefficients were excluded on this 2nd 10-fold CV.*

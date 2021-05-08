@@ -1,5 +1,5 @@
 ---
-title: 'Blog #1'
+title: 'Blog post 1 - Python'
 author: ''
 date: '2021-05-08'
 slug: blog-1
@@ -7,6 +7,37 @@ categories: []
 tags: []
 description: ''
 ---
- "Hi, this is my blog post. gotta write more here tomorrow."
- 
- 
+```{python}
+hi =("Hello world, this is my first ever blog post.")
+```
+
+```{R}
+# use reticulate to show how R and python can work together:
+
+library(reticulate)
+
+dogs <- "I have a big dog named Murphy, here is a picture of her sitting in a funny position."
+```
+
+```{python}
+print(hi, r.dogs)
+```
+
+![](/post/2021-05-08-blog-1_files/21269D83-DA31-4DD7-BC62-A7126232EE15.jpeg)
+
+```{python}
+# example of python code w/ output: practicing indexing lists
+
+animal_list = ["whale", "dolphin", "shark", "manta ray", "squid", "jellyfish"]
+
+animal_list[0] # select first animal in list
+
+animal_list[1] = "bluefin tuna" #replace the 2nd index w/ bluefin tuna
+print(animal_list)
+
+animal_list.append("sea otter") # add a 6th index to the list
+print(animal_list)
+
+"shark" in animal_list
+```
+
