@@ -1,0 +1,12 @@
+---
+title: 'Blog #1'
+author: ''
+date: '2021-05-08'
+slug: blog-1
+categories: []
+tags: []
+description: ''
+---
+ "Hi, this is my blog post. gotta write more here tomorrow."
+ 
+ 
